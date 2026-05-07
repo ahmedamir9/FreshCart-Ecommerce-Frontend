@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | Fresh Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-leaf"></i> Fresh<span>Cart</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="cart.html" class="nav-link active">Cart</a>
+        </div>
+        <div class="nav-actions">
+          <div id="auth-links" class="nav-links"></div>
+          <a href="cart.html" class="icon-btn">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 style="margin: 40px 0 20px;">Shopping Cart</h1>
+    
+    <div id="cart-content" class="cart-container">
+      <!-- Dynamic Content -->
+    </div>
+  </main>
+
+  <script type="module">
+    import { getCartItems, getCartSubtotal, updateQuantity, removeFromCart } from './js/cart.js';
+    import { formatPrice, showToast } from './js/main.js';
+
+    const cartContent = document.getElementById('cart-content');
+
+    function renderCart() {
+      const items = getCartItems();
+      const subtotal = getCartSubtotal();
+      
+      if (items.length === 0) {
+        cartContent.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: white; border-radius: 12px;">
+            <i class="fas fa-shopping-basket" style="font-size: 64px; color: #ddd; margin-bottom: 20px;"></i>
+            <h2>Your cart is empty</h2>
+            <p style="margin-bottom: 30px; color: var(--text-muted);">Looks like you haven't added anything to your cart yet.</p>
+            <a href="index.html#shop" class="btn-primary" style="padding: 15px 40px;">Start Shopping</a>
+          </div>
+        `;
+        return;
+      }
+
+      const shipping = 5.00;
+      const tax = subtotal * 0.1;
+      const total = subtotal + shipping + tax;
+
+      cartContent.innerHTML = `
+        <div class="cart-items-card">
+          ${items.map(item => `
+            <div class="cart-item">
+              <div class="cart-item-img">
+                <img src="${item.image}" alt="${item.name}">
+              </div>
+              <div class="cart-item-details">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">${formatPrice(item.price)}</div>
+              </div>
+              <div class="cart-item-qty">
+                <button class="qty-btn dec" data-id="${item.id}">-</button>
+                <span>${item.quantity}</span>
+                <button class="qty-btn inc" data-id="${item.id}">+</button>
+              </div>
+              <div style="width: 100px; text-align: right; font-weight: 600;">
+                ${formatPrice(item.totalPrice)}
+              </div>
+              <button class="icon-btn remove-btn" data-id="${item.id}" style="margin-left: 20px; color: var(--error);">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="cart-summary-card">
+          <h3 style="margin-bottom: 20px;">Order Summary</h3>
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>${formatPrice(subtotal)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>${formatPrice(shipping)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax (10%)</span>
+            <span>${formatPrice(tax)}</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span>${formatPrice(total)}</span>
+          </div>
+          <a href="checkout.html" class="btn-primary" style="display: block; text-align: center; margin-top: 20px;">
+            Proceed to Checkout
+          </a>
+        </div>
+      `;
+
+      // Event Listeners
+      document.querySelectorAll('.qty-btn.inc').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const item = items.find(i => i.id === id);
+          updateQuantity(id, item.quantity + 1);
+          renderCart();
+        });
+      });
+
+      document.querySelectorAll('.qty-btn.dec').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const item = items.find(i => i.id === id);
+          updateQuantity(id, item.quantity - 1);
+          renderCart();
+        });
+      });
+
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          removeFromCart(id);
+          showToast('Item removed from cart', 'error');
+          renderCart();
+        });
+      });
+    }
+
+    renderCart();
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

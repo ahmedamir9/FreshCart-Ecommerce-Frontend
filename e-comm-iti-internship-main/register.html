@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | Fresh Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-soft">
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-leaf"></i> Fresh<span>Cart</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <h2>Create Account</h2>
+      <p>Join the Fresh Cart community today.</p>
+      
+      <form id="register-form">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-primary">Register</button>
+      </form>
+      
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { register, isAuthenticated } from './js/auth.js';
+    import { showToast } from './js/main.js';
+
+    if (isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
+
+    const registerForm = document.getElementById('register-form');
+
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
+
+      const result = register({ name, email, password });
+
+      if (result.success) {
+        showToast(result.message);
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1500);
+      } else {
+        showToast(result.message, 'error');
+      }
+    });
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

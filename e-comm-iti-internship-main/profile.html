@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Profile | Fresh Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-leaf"></i> Fresh<span>Cart</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="cart.html" class="nav-link">Cart</a>
+        </div>
+        <div class="nav-actions">
+          <div id="auth-links" class="nav-links"></div>
+          <a href="cart.html" class="icon-btn">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 40px 20px;">
+    <div class="profile-layout" style="display: grid; grid-template-columns: 300px 1fr; gap: 40px;">
+      <!-- Sidebar -->
+      <aside>
+        <div class="cart-summary-card" style="text-align: center;">
+          <div style="width: 100px; height: 100px; background: var(--primary); color: var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px;">
+            <i class="fas fa-user"></i>
+          </div>
+          <h2 id="profile-name">User Name</h2>
+          <p id="profile-email" style="color: var(--text-muted); margin-bottom: 20px;">email@example.com</p>
+          <button id="logout-btn-profile" class="btn-primary" style="background: var(--bg-soft); color: var(--error); border: 1px solid #ddd;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <section>
+        <div class="cart-items-card">
+          <h3>Order History</h3>
+          <div id="orders-container" style="margin-top: 20px;">
+            <!-- Dynamic Orders -->
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { getCurrentUser, logout, authGuard } from './js/auth.js';
+    import { getUserOrders, deleteOrder } from './js/checkout.js';
+    import { formatPrice, showToast } from './js/main.js';
+
+    // Protect page
+    authGuard();
+
+    const user = getCurrentUser();
+    const ordersContainer = document.getElementById('orders-container');
+    
+    document.getElementById('profile-name').textContent = user.name;
+    document.getElementById('profile-email').textContent = user.email;
+
+    document.getElementById('logout-btn-profile').addEventListener('click', logout);
+
+    function renderOrders() {
+      const orders = getUserOrders(user.id);
+      
+      if (orders.length === 0) {
+        ordersContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-muted);">You haven\'t placed any orders yet.</p>';
+        return;
+      }
+
+      ordersContainer.innerHTML = orders.reverse().map(order => {
+        const isCash = order.shippingInfo.payment === 'Cash';
+        const paymentStatus = isCash ? 'Unpaid (Cash)' : 'Paid (Visa)';
+        const statusColor = isCash ? '#d63031' : '#00b894';
+
+        return `
+          <div class="order-card" style="border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px; position: relative;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f9f9f9; padding-bottom: 10px;">
+              <div>
+                <strong style="display: block;">Order ${order.id}</strong>
+                <span style="font-size: 12px; color: var(--text-muted);">${new Date(order.createdAt).toLocaleString()}</span>
+              </div>
+              <div style="text-align: right;">
+                <span style="background: ${statusColor}15; color: ${statusColor}; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                  ${paymentStatus}
+                </span>
+                <strong style="display: block; margin-top: 5px;">${formatPrice(order.summary.total)}</strong>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+              <div style="display: flex; gap: 10px; overflow-x: auto;">
+                ${order.items.map(item => `
+                  <div style="flex: 0 0 60px;">
+                    <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; border-radius: 4px; object-fit: contain; background: white; padding: 2px;" title="${item.name} x ${item.quantity}">
+                  </div>
+                `).join('')}
+              </div>
+              
+              <button class="delete-order-btn" data-id="${order.id}" style="background: none; border: none; color: var(--error); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Add delete listeners
+      document.querySelectorAll('.delete-order-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const orderId = e.currentTarget.dataset.id;
+          if (confirm('Are you sure you want to delete this order record?')) {
+            deleteOrder(orderId);
+            showToast('Order record deleted', 'error');
+            renderOrders();
+          }
+        });
+      });
+    }
+
+    renderOrders();
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

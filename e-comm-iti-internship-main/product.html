@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | Fresh Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-leaf"></i> Fresh<span>Cart</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="cart.html" class="nav-link">Cart</a>
+        </div>
+        <div class="nav-actions">
+          <div id="auth-links" class="nav-links"></div>
+          <a href="cart.html" class="icon-btn">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 60px 20px;">
+    <div id="product-details" class="product-details-layout">
+      <!-- Dynamic Content -->
+    </div>
+  </main>
+
+  <style>
+    .product-details-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      background: var(--white);
+      padding: 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+    }
+    .detail-img {
+      width: 100%;
+      border-radius: var(--radius);
+      max-height: 500px;
+      object-fit: contain;
+      background: white;
+      padding: 20px;
+    }
+    .detail-info h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .detail-category {
+      color: var(--primary-dark);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .detail-price {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      display: block;
+    }
+    .detail-desc {
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      font-size: 18px;
+    }
+    .qty-input {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .qty-input input {
+      width: 60px;
+      padding: 10px;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      .product-details-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script type="module">
+    import { initProducts, getProductById } from './js/products.js';
+    import { addToCart } from './js/cart.js';
+    import { formatPrice, showToast } from './js/main.js';
+
+    const container = document.getElementById('product-details');
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    async function init() {
+      await initProducts();
+      renderDetails();
+    }
+
+    function renderDetails() {
+      const product = getProductById(productId);
+      
+      if (!product) {
+        container.innerHTML = '<h2>Product not found</h2><a href="index.html">Back to Home</a>';
+        return;
+      }
+
+      document.title = `${product.name} | Fresh Cart`;
+
+      container.innerHTML = `
+        <div class="detail-image">
+          <img src="${product.image}" alt="${product.name}" class="detail-img">
+        </div>
+        <div class="detail-info">
+          <span class="detail-category">${product.category}</span>
+          <h1>${product.name}</h1>
+          <div style="color: #f1c40f; margin-bottom: 20px;">
+            ${'<i class="fas fa-star"></i>'.repeat(Math.floor(product.rating))}
+            <span style="color: var(--text-muted); font-size: 14px; margin-left: 5px;">(${product.rating})</span>
+          </div>
+          <span class="detail-price">${formatPrice(product.price)}</span>
+          <p class="detail-desc">${product.description}</p>
+          
+          <div class="qty-input">
+            <label>Quantity:</label>
+            <input type="number" id="qty" value="1" min="1">
+          </div>
+
+          <button class="btn-primary" id="add-btn" style="padding: 18px 40px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="fas fa-cart-plus"></i> Add to Cart
+          </button>
+        </div>
+      `;
+
+      document.getElementById('add-btn').addEventListener('click', () => {
+        const qty = parseInt(document.getElementById('qty').value) || 1;
+        addToCart(product.id, qty);
+        showToast(`Added ${qty} ${product.name} to cart!`);
+      });
+    }
+
+    init();
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

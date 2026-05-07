@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Fresh Cart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-soft">
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-leaf"></i> Fresh<span>Cart</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p>Please enter your details to sign in.</p>
+      
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+      
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Sign Up</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { login, isAuthenticated } from './js/auth.js';
+    import { showToast } from './js/main.js';
+
+    if (isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
+
+    const loginForm = document.getElementById('login-form');
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const result = login(email, password);
+
+      if (result.success) {
+        showToast('Login successful! Redirecting...');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } else {
+        showToast(result.message, 'error');
+      }
+    });
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
