@@ -30,8 +30,7 @@ export function placeOrder(shippingInfo) {
       shipping,
       total
     },
-    status: 'Pending',
-    createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString()
   };
 
   orders.push(newOrder);
