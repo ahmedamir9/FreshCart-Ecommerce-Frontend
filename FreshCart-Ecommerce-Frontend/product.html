@@ -148,8 +148,13 @@
 
       document.getElementById('add-btn').addEventListener('click', () => {
         const qty = parseInt(document.getElementById('qty').value) || 1;
-        addToCart(product.id, qty);
-        showToast(`Added ${qty} ${product.name} to cart!`);
+        const added = addToCart(product.id, qty);
+        if (added) {
+          showToast(`Added ${qty} ${product.name} to cart!`);
+        } else {
+          showToast('Please login to add items to cart.', 'error');
+          window.location.href = 'login.html';
+        }
       });
     }
 
@@ -158,5 +163,3 @@
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
-
-

@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize data
   await initProducts();
   updateCartBadge();
-  
+
   // Render Header & Mobile Nav
   renderHeader();
   renderMobileNav();
-  
+
   // Initialize UI components
   setupLogout();
 });
@@ -22,9 +22,9 @@ function renderMobileNav() {
 
   const mobileNav = document.createElement('div');
   mobileNav.className = 'mobile-nav';
-  
+
   const currentPage = window.location.pathname;
-  
+
   mobileNav.innerHTML = `
     <a href="index.html" class="mobile-nav-item ${currentPage.includes('index.html') || currentPage === '/' ? 'active' : ''}">
       <i class="fas fa-home"></i>
@@ -39,14 +39,14 @@ function renderMobileNav() {
       <span>Profile</span>
     </a>
   `;
-  
+
   document.body.appendChild(mobileNav);
 }
 
 function renderHeader() {
   const user = getCurrentUser();
   const authLinks = document.getElementById('auth-links');
-  
+
   if (authLinks) {
     if (user) {
       authLinks.innerHTML = `
@@ -72,20 +72,22 @@ function setupLogout() {
   });
 }
 
-
+/**
+ * Global UI Helpers
+ */
 
 export function showToast(message, type = 'success') {
   const container = document.getElementById('toast-container') || createToastContainer();
-  
+
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.innerHTML = `
     <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
     <span>${message}</span>
   `;
-  
+
   container.appendChild(toast);
-  
+
   setTimeout(() => {
     toast.style.opacity = '0';
     setTimeout(() => toast.remove(), 300);

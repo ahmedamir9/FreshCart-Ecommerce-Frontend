@@ -1,12 +1,17 @@
 
 import { getData, setData } from './storage.js';
 import { getProductById } from './products.js';
+import { isAuthenticated } from './auth.js';
 
 export function getCart() {
   return getData("cart");
 }
 
 export function addToCart(productId, quantity = 1) {
+  if (!isAuthenticated()) {
+    return false;
+  }
+
   let cart = getCart();
   const existingItem = cart.find(item => item.productId === productId);
 

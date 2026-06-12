@@ -154,8 +154,13 @@
       document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const id = parseInt(e.currentTarget.dataset.id);
-          addToCart(id);
-          showToast('Added to cart!');
+          const added = addToCart(id);
+          if (added) {
+            showToast('Added to cart!');
+          } else {
+            showToast('Please login to add items to cart.', 'error');
+            window.location.href = 'login.html';
+          }
         });
       });
     }
@@ -188,4 +193,3 @@
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
-

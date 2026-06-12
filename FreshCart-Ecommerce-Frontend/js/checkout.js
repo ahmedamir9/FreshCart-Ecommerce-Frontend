@@ -4,30 +4,24 @@ import { clearCart, getCartItems, getCartSubtotal } from './cart.js';
 import { getCurrentUser } from './auth.js';
 
 export function placeOrder(shippingInfo) {
-
-  const user = getCurrentUser(); 
-
+  const user = getCurrentUser();
   if (!user) {
-    window.location.href = "login.html";
-    return;
+    return { success: false, message: "Please login to place your order." };
   }
 
   const cartItems = getCartItems();
-
-  if (cartItems.length === 0) {
-    return { success: false, message: "Cart is empty." };
-  }
+  if (cartItems.length === 0) return { success: false, message: "Cart is empty." };
 
   const subtotal = getCartSubtotal();
-  const tax = subtotal * 0.1;
-  const shipping = subtotal * 0.01;
+  const tax = subtotal * 0.1; // 10% tax
+  const shipping = 5.00;
   const total = subtotal + tax + shipping;
 
-  const orders = getData("orders") || []; // ✔️ مهم جدًا
+  const orders = getData("orders");
 
   const newOrder = {
     id: `ORD-${Date.now()}`,
-    userId: user.id,
+    userId: user ? user.id : 'gust',
     items: cartItems,
     shippingInfo,
     summary: {
